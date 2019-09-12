@@ -8,21 +8,23 @@ def alg(file):
             self.name = name
             self.points_to = points_to
             self.pointed_by = pointed_by
+            self.fin_time = fin_time
+            self.not_explored = not_explored
+            self.leader = leader
 
     def DFS_loop1(graph):
         def DFS(graph, i):
             graph[i].not_explored = False
-            graph[i].leader = s
-            for node in graph[i].points_to:
+            for node in graph[i].pointed_by:
                 if graph[node].not_explored:
                     DFS(graph, node)
+            global t
             t += 1
             graph[i].fin_time = t
+        global t
         t = 0
-        s = None
         for i in range(len(graph), 0, -1):
             if graph[i].not_explored:
-                s = i
                 DFS(graph, i)
 
     def DFS_loop2(graph):
@@ -32,12 +34,10 @@ def alg(file):
             for node in graph[i].points_to:
                 if graph[node].not_explored:
                     DFS(graph, node)
-            t += 1
-            graph[i].fin_time = t
-        t = 0
+        global s 
         s = None
         for i in range(len(graph), 0, -1):
-            if graph[graph[i].fin_time].not_explored:
+            if graph[i].not_explored:
                 s = i
                 DFS(graph, i)
 
@@ -58,16 +58,19 @@ def alg(file):
                 G[temp[1]].pointed_by.append(temp[0])
 
     # first pass
-    #DFS_loop(G)
-    for node in G:
-        print(node, "pointed by:", G[node].pointed_by)
-        print(node, "points to:", G[node].points_to)
-    # reset nodes
-    for node in G:
+    DFS_loop1(G)
+    
+    # rebuild graph by fin_time
+    G_by_fin_time = {}
+    for node in range(len(G), 0, -1):
         G[node].not_explored = True
+        G_by_fin_time[G[node].fin_time] = G[node]
+        del G[node]
+    del G
+    DFS_loop2(G_by_fin_time)
 
-
-#    DFS_loop(G)
+    for node in G_by_fin_time:
+        print(G_by_fin_time[node].name, "leader=", G_by_fin_time[node].leader)
 
 if __name__ == '__main__':
     alg(file)
