@@ -37,9 +37,9 @@ def alg(file):
         global s 
         s = None
         for i in range(len(graph), 0, -1):
-            if graph[i].not_explored:
-                s = i
-                DFS(graph, i)
+            if graph[G_by_fin_time[i]].not_explored:
+                s = G_by_fin_time[i]
+                DFS(graph, G_by_fin_time[i])
 
     # create graph (dict of all nodes)
     G = {}
@@ -57,20 +57,26 @@ def alg(file):
             elif temp[1] in G:
                 G[temp[1]].pointed_by.append(temp[0])
 
+
     # first pass
     DFS_loop1(G)
     
+    for node in G:
+        print("name=", node, "finish time=", G[node].fin_time)
+    
     # rebuild graph by fin_time
-    G_by_fin_time = {}
+    G_by_fin_time = {}     # make this dict a mapping of fin time to name
     for node in range(len(G), 0, -1):
         G[node].not_explored = True
-        G_by_fin_time[G[node].fin_time] = G[node]
-        del G[node]
-    del G
-    DFS_loop2(G_by_fin_time)
+        G_by_fin_time[G[node].fin_time] = G[node].name
 
     for node in G_by_fin_time:
-        print(G_by_fin_time[node].name, "leader=", G_by_fin_time[node].leader)
+        print(node, G_by_fin_time[node])
+
+    DFS_loop2(G)
+
+    for node in G:
+        print(G[node].name, "leader=", G[node].leader)
 
 if __name__ == '__main__':
     alg(file)
