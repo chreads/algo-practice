@@ -1,4 +1,6 @@
-import sys
+import sys, threading, resource
+sys.setrecursionlimit(800000)
+threading.stack_size(97108864)
 
 file = sys.argv[1] 
 def alg(file):
@@ -57,26 +59,27 @@ def alg(file):
             elif temp[1] in G:
                 G[temp[1]].pointed_by.append(temp[0])
 
-
     # first pass
     DFS_loop1(G)
     
-    for node in G:
-        print("name=", node, "finish time=", G[node].fin_time)
-    
-    # rebuild graph by fin_time
-    G_by_fin_time = {}     # make this dict a mapping of fin time to name
+    # make fin_time to name dict
+    G_by_fin_time = {}     
     for node in range(len(G), 0, -1):
         G[node].not_explored = True
         G_by_fin_time[G[node].fin_time] = G[node].name
 
-    for node in G_by_fin_time:
-        print(node, G_by_fin_time[node])
-
     DFS_loop2(G)
 
+    count_dict = {}
+
     for node in G:
-        print(G[node].name, "leader=", G[node].leader)
+        if G[node].leader in count_dict:
+            count_dict[G[node].leader] += 1
+        else:
+            count_dict[G[node].leader] = 1
+    #    print(G[node].name, "leader=", G[node].leader)
+    print(list(sorted(count_dict.values(), reverse=True))[:5])
 
 if __name__ == '__main__':
-    alg(file)
+    thread = threading.Thread(target=alg, args=(file,))
+    thread.start()
